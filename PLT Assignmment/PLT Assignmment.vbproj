@@ -95,6 +95,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Scanner.vb" />
+    <Compile Include="Token.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Form1.resx">
@@ -127,6 +129,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Screenshot 2024-02-03 122617.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Screenshot 2024-02-04 120021.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\+76 209 1092 4095 info%40mollysrestaurant.com.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>
