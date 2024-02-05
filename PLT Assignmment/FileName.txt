@@ -1,0 +1,199 @@
+Private Sub parse_statement()
+        Select Case currentToken.Type
+            Case Token.IDENTIFIER
+                parse_declaration()
+            Case Token.IF_KEYWORD
+                parse_if_statement()
+            Case Token.LOG
+                parse_log_statement()
+                ' Add more cases for other types of statements as needed
+            Case Else
+                HandleSyntaxError(currentToken)
+
+        End Select
+    End Sub
+
+
+    Private Sub parse_if_statement()
+        consume(Token.IF_KEYWORD)
+        consume(Token.LEFT_BRACE)
+        parse_condition()
+        consume(Token.RIGHT_BRACE)
+        consume(Token.LEFT_BRACE)
+        parse_statement()
+        consume(Token.RIGHT_BRACE)
+        If currentToken.Type = Token.ELSE_KEYWORD Then
+            consume(Token.ELSE_KEYWORD)
+            consume(Token.LEFT_BRACE)
+            parse_statement()
+            consume(Token.RIGHT_BRACE)
+        End If
+    End Sub
+
+
+
+
+
+    Private Sub parse_expression()
+        ' Here, we're only handling a simple numeric expression
+        If currentToken.Type = Token.NUMBER Then
+            consume(Token.NUMBER)
+        Else
+            HandleSyntaxError(currentToken)
+        End If
+    End Sub
+
+    Private Sub parse_end()
+        consume(Token.END_STATEMENT)
+        parse_identifier()
+
+    End Sub
+
+    Private Sub parse_identifier()
+        If currentToken.Type = Token.IDENTIFIER Then
+
+            consume(Token.IDENTIFIER)
+        Else
+            HandleSyntaxError(currentToken)
+        End If
+    End Sub
+
+    Private Sub consume(expectedType As Integer, Optional expectedValue As String = "")
+        If currentToken.Type = expectedType AndAlso (String.IsNullOrEmpty(expectedValue) OrElse currentToken.Value = expectedValue) Then
+            currentToken = scanner.scan()
+        Else
+            HandleSyntaxError(currentToken)
+        End If
+    End Sub
+
+    Private Sub parse_comparison_operator()
+        ' Check if the current token is an operator and then determine the specific type
+        If currentToken.Type = Token.OP Then
+            ' Check the value of the operator to determine its specific type
+            Select Case currentToken.Value
+                Case "<"
+                    consume(Token.OP) ' Consume the "<" operator
+                Case ">"
+                    consume(Token.OP) ' Consume the ">" operator
+                Case "<="
+                    consume(Token.OP) ' Consume the "<=" operator
+                Case ">="
+                    consume(Token.OP) ' Consume the ">=" operator
+                Case Else
+                    ' If the value is not a recognized comparison operator, handle it as an error
+                    HandleSyntaxError(currentToken)
+            End Select
+        Else
+            ' If the current token is not an operator, handle it as an error
+            HandleSyntaxError(currentToken)
+        End If
+    End Sub
+
+    Private Sub parse_log_statement()
+        ' Ensure the current token is the 'log' keyword
+        If currentToken.Type <> Token.LOG Then
+            HandleSyntaxError(currentToken)
+            ' Optional: Skip to the next valid token or recovery point
+            Return
+        End If
+
+        consume(Token.LOG) ' Consume the 'log' keyword
+
+        ' Expect and consume the opening brace
+        If currentToken.Type <> Token.LEFT_BRACE Then
+            HandleSyntaxError(currentToken)
+            ' Optional: Skip to the next valid token or recovery point
+
+            Return
+        End If
+
+        consume(Token.LEFT_BRACE)
+
+        ' Now consume the contents of the log message until the closing brace
+        ' Assuming that log messages don't have nested braces
+        While currentToken.Type <> Token.RIGHT_BRACE And currentToken.Type <> Token.EOF
+            ' Consume all tokens inside the braces; this is a simplification
+            ' Depending on your language, you may need to parse expressions inside the log
+            consume(currentToken.Type)
+        End While
+
+        ' Expect and consume the closing brace
+        If currentToken.Type <> Token.RIGHT_BRACE Then
+            HandleSyntaxError(currentToken)
+            ' Optional: Skip to the next valid token or recovery point
+
+            Return
+        End If
+
+        consume(Token.RIGHT_BRACE)
+
+        ' Optional: Expect and consume the statement terminator (semicolon)
+        If currentToken.Type <> Token.SEMICOLON Then
+            HandleSyntaxError(currentToken)
+            ' Optional: Skip to the next valid token or recovery point
+
+            Return
+        End If
+
+        consume(Token.SEMICOLON)
+
+        AddParsingResult("Log statement parsed.")
+    End Sub
+
+
+
+    Private Sub parse_condition()
+        parse_expression() ' Parse the first part of the condition
+        parse_comparison_operator() ' Parse the comparison operator
+        parse_expression() ' Parse the second part of the condition
+    End Sub
+    Private Sub parse_type()
+        If currentToken.Value.ToLower() = "int" AndAlso currentToken.Type = Token.IDENTIFIER Then
+            consume(Token.IDENTIFIER) ' Consume the type "int"
+        Else
+            HandleSyntaxError(currentToken)
+        End If
+    End Sub
+
+    Private Sub parse_declaration()
+        parse_type()
+        Dim variableName As String = currentToken.Value ' Store the variable name
+        parse_identifier() ' Parse the variable name
+
+        ' Check if there's an assignment operator "="
+        If currentToken.Type = Token.OP AndAlso currentToken.Value = "=" Then
+            consume(Token.OP) ' Consume the "="
+            parse_expression() ' Parse the expression after "="
+            AddParsingResult("Declaration with assignment parsed for variable: " & variableName) ' Add variable name to the result
+        Else
+            ' If there's no assignment, add the result here
+            AddParsingResult("Declaration without assignment parsed for variable: " & variableName)
+        End If
+    End Sub
+
+
+
+    Private Sub AddParsingResult(result As String)
+        Dim lineText As String = scanner.GetLineFromInput(currentToken.LineNumber)
+        parsingResults.Add("Line " & currentToken.LineNumber & ": " & lineText & " - " & result)
+
+    End Sub
+
+
+    Public Function GetParsingResults() As List(Of String)
+        Return parsingResults
+    End Function
+
+    ' Method to add a result to the parsing results with line information
+    Private Sub AddParsingResultWithLine(result As String)
+        AddParsingResult(result & " at line " & currentToken.LineNumber)
+    End Sub
+    Private Sub HandleSyntaxError(token As Token)
+        Dim errorLine As String = scanner.GetLineFromInput(token.LineNumber)
+        Dim errorMessage As String = "Syntax Error at line " & token.LineNumber & ": " & errorLine
+        AddParsingResult(errorMessage)
+        hasSyntaxError = True
+
+        ' Optional: Skip to the next valid token or recovery point
+
+    End Sub

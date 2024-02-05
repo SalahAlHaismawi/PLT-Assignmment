@@ -96,6 +96,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Scanner.vb" />
+    <Compile Include="SyntaxLogic.vb" />
     <Compile Include="Token.vb" />
   </ItemGroup>
   <ItemGroup>
@@ -135,6 +136,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\+76 209 1092 4095 info%40mollysrestaurant.com.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="FileName.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

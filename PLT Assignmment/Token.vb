@@ -7,20 +7,27 @@
     Public Const START_STATEMENT As Integer = 5
     Public Const END_STATEMENT As Integer = 6
     Public Const NUMBER As Integer = 7
-    Public Const IF_KEYWORD As Integer = 10
-    Public Const ELSE_KEYWORD As Integer = 11
-    Public Const START_KEYWORD As Integer = 12
-    Public Const END_KEYWORD As Integer = 13
-    Public Const OP As Integer = 15
-    Public Const UNKNOWN As Integer = 16
+    Public Const IF_KEYWORD As Integer = 8
+    Public Const ELSE_KEYWORD As Integer = 9
+    Public Const START_KEYWORD As Integer = 10
+    Public Const END_KEYWORD As Integer = 11
+    Public Const SEPARATOR As Integer = 12
+    Public Const OP As Integer = 13
+    Public Const LOG As Integer = 14
+
+    Public Const UNKNOWN As Integer = 15
+
 
 
     Public Property Type As Integer
     Public Property Value As String
+    Public Property LineNumber As Integer ' Add line number property
 
-    Public Sub New(type As Integer, value As String)
+
+    Public Sub New(type As Integer, value As String, Optional LineNumber As Integer = 0)
         Me.Type = type
         Me.Value = value
+        Me.LineNumber = LineNumber
     End Sub
 
     Public Overrides Function ToString() As String
