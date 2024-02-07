@@ -1,4 +1,5 @@
 ﻿Imports System.Linq.Expressions
+Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Public Class Form1
@@ -44,7 +45,7 @@ Public Class Form1
         If results.Count = 0 Then
             ListBox2.Items.Add("No parsing results to display.")
         End If
-        
+
     End Sub
 
 
@@ -82,7 +83,7 @@ Public Class Form1
     End Sub
     Private Function IsValidToken(tokenType As Integer) As Boolean
         ' Define a list of valid token types
-        Dim validTypes() As Integer = {Token.IDENTIFIER, Token.LEFT_BRACE, Token.RIGHT_BRACE, Token.SEMICOLON, Token.START_STATEMENT, Token.END_STATEMENT, Token.NUMBER, Token.IF_KEYWORD, Token.ELSE_KEYWORD, Token.OP, Token.SEPARATOR, Token.LOG}
+        Dim validTypes() As Integer = {Token.IDENTIFIER, Token.LEFT_BRACE, Token.RIGHT_BRACE, Token.SEMICOLON, Token.START_STATEMENT, Token.END_STATEMENT, Token.NUMBER, Token.IF_KEYWORD, Token.ELSE_KEYWORD, Token.OP, Token.SEPARATOR, Token.LOG, Token.KEYWORD, Token.LEFT_PARENTHESES, Token.RIGHT_PARENTHESES}
 
         ' Check if the token type is in the list of valid types
         Return validTypes.Contains(tokenType)
@@ -123,6 +124,10 @@ Public Class Form1
                 Return "KEYWORD"
             Case Token.UNKNOWN
                 Return "UNKNOWN"
+            Case Token.LEFT_PARENTHESES
+                Return "LEFT_PARENTHESES"
+            Case Token.RIGHT_PARENTHESES
+                Return "RIGHT_PARENTHESES"
             Case Else
                 Return "INVALID_TYPE"
         End Select

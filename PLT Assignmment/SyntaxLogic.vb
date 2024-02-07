@@ -114,6 +114,7 @@ End Sub
 
             Select Case currentToken.Type
                 Case Token.IDENTIFIER
+                    parse_expression()
                     ' Handle identifier statements
                     ' Update currentToken to the next token in the input stream
                     hasParsedStatement = True
@@ -124,7 +125,7 @@ End Sub
                     hasParsedStatement = True
 
                 Case Token.IF_KEYWORD
-                    ' Handle if statements
+                    parse_if_statement()
                     ' Update currentToken to the next token in the input stream
                     hasParsedStatement = True
 
@@ -186,12 +187,39 @@ End Sub
         End If
     End Sub
     Private Sub parse_expression()
-        ' Here, we're only handling a simple numeric expression
-        If currentToken.Type = Token.NUMBER Then
-            consume(Token.NUMBER)
-        Else
+        ' Start by expecting an identifier
+        If currentToken.Type = Token.IDENTIFIER Then
+            parse_identifier() ' Parse the identifier
 
+            ' Expect an assignment operator next
+            If currentToken.Type = Token.OP Then
+                consume(Token.OP) ' Consume the assignment operator
+
+                ' Parse the right-hand side of the assignment
+                parse_value_or_expression()
+            Else
+                AddError("Expected assignment operator '=' after identifier")
+            End If
+        Else
+            AddError("Expected identifier at the beginning of the expression")
         End If
+
+        ' Add parsing result indicating that an expression was parsed
+        AddParsingResult("Expression parsed successfully")
+    End Sub
+
+    Private Sub parse_value_or_expression()
+        ' This method should parse either a simple value (like a number)
+        ' or a more complex expression. The implementation will depend on
+        ' the complexity of your language's syntax.
+        Select Case currentToken.Type
+            Case Token.NUMBER
+                consume(Token.NUMBER)
+                ' Add cases for other types of values or expressions
+                ' ...
+            Case Else
+                AddError("Expected a value or expression after '='")
+        End Select
     End Sub
 
 
@@ -222,14 +250,114 @@ End Sub
         If currentToken.Type = Token.OP AndAlso currentToken.Value = "=" Then
             consume(Token.OP) ' Consume the "="
             parse_expression() ' Parse the expression after "="
-            AddParsingResult("Declaration with assignment parsed for variable: " & variableName) ' Add variable name to the result
+            ' Check if there's a semicolon after the expression
+            If currentToken.Type = Token.SEMICOLON Then
+                consume(Token.SEMICOLON) ' Consume the semicolon
+                AddParsingResult("Declaration with assignment parsed for variable: " & variableName) ' Add variable name to the result
+            Else
+                ' Handle error if semicolon is missing
+                AddError("Expected ';' after expression in declaration")
+            End If
         Else
             ' If there's no assignment, add the result here
             AddParsingResult("Declaration without assignment parsed for variable: " & variableName)
+            ' Check if there's a semicolon after the variable name
+            If currentToken.Type = Token.SEMICOLON Then
+                consume(Token.SEMICOLON) ' Consume the semicolon
+            Else
+                ' Handle error if semicolon is missing
+                AddError("Expected ';' after variable name in declaration")
+            End If
         End If
+    End Sub
+    Private Sub parse_if_statement()
+        consume(Token.IF_KEYWORD) ' Consume the "if" keyword
+
+        ' Check for opening parenthesis after the "if" keyword
+        If currentToken.Type = Token.LEFT_PARENTHESES Then
+            consume(Token.LEFT_PARENTHESES) ' Consume the opening parenthesis
+
+            ' Parse the condition expression inside the parentheses
+            parse_expression()
+
+            ' Check for closing parenthesis after the condition expression
+            If currentToken.Type = Token.RIGHT_PARENTHESES Then
+                consume(Token.RIGHT_PARENTHESES) ' Consume the closing parenthesis
+            Else
+                ' Handle error if closing parenthesis is missing
+                AddError("Expected ')' after condition expression")
+                Exit Sub ' Exit the function if an error occurs
+            End If
+        Else
+            ' Handle error if opening parenthesis is missing
+            AddError("Expected '(' after 'if' keyword")
+            Exit Sub ' Exit the function if an error occurs
+        End If
+
+        ' Check for opening brace '{' after the condition
+        If currentToken.Type = Token.LEFT_BRACE Then
+            consume(Token.LEFT_BRACE) ' Consume the opening brace
+
+            ' Parse statements inside the if block
+            While currentToken.Type <> Token.RIGHT_BRACE And currentToken.Type <> Token.EOF
+                parse_statement() ' Parse each statement inside the block
+            End While
+
+            ' Check for closing brace '}'
+            If currentToken.Type = Token.RIGHT_BRACE Then
+                consume(Token.RIGHT_BRACE) ' Consume the closing brace
+            Else
+                AddError("Expected '}' at the end of if block")
+                Exit Sub
+            End If
+        Else
+            AddError("Expected '{' after if condition")
+            Exit Sub
+        End If
+        If currentToken.Type = Token.ELSE_KEYWORD Then
+            consume(Token.ELSE_KEYWORD) ' Consume the "else" keyword
+
+            ' Check for opening brace '{' after the "else" keyword
+            If currentToken.Type = Token.LEFT_BRACE Then
+                consume(Token.LEFT_BRACE) ' Consume the opening brace
+
+                ' Parse statements inside the else block
+                While currentToken.Type <> Token.RIGHT_BRACE And currentToken.Type <> Token.EOF
+                    parse_statement() ' Parse each statement inside the block
+                End While
+
+                ' Check for closing brace '}'
+                If currentToken.Type = Token.RIGHT_BRACE Then
+                    consume(Token.RIGHT_BRACE) ' Consume the closing brace
+                Else
+                    AddError("Expected '}' at the end of else block")
+                    Exit Sub
+                End If
+            Else
+                AddError("Expected '{' after else keyword")
+                Exit Sub
+            End If
+        End If
+        AddParsingResult("If statement with block parsed successfully")
+
     End Sub
 
 
+
+
+    Private tokens As List(Of Token)
+    Private currentPosition As Integer
+
+    Private Function peekNextToken() As Token
+        ' Check if there is a next token
+        If currentPosition < tokens.Count - 1 Then
+            ' Return the next token without advancing the currentPosition
+            Return tokens(currentPosition + 1)
+        Else
+            ' If there are no more tokens, return a special EOF (End Of File) token or similar
+            Return New Token(Token.EOF, "")
+        End If
+    End Function
 
 
 

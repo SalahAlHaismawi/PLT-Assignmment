@@ -76,12 +76,17 @@ Public Class Scanner
                     Return Token.LOG  ' Handling for the 'log' keyword
                 Case "INT" ' Add support for the "int" keyword
                     Return Token.KEYWORD
+                Case "IF" ' Add support for the "if" keyword
+                    Return Token.IF_KEYWORD
+                Case "ELSE" ' Add support for the "if" keyword
+                    Return Token.ELSE_KEYWORD
+
                 Case Else
                     Return Token.IDENTIFIER
             End Select
         ElseIf Char.IsDigit(currentChar) Then
             Return handleNumber()
-        ElseIf "+-*/=<>()[]".Contains(currentChar) Then
+        ElseIf "+-*/=<>[]".Contains(currentChar) Then
             Return handleOperator()
         ElseIf currentChar = "!" Then
             Return handleExclamation()
@@ -91,12 +96,21 @@ Public Class Scanner
         ElseIf currentChar = "," Then
             takeIt()
             Return Token.SEPARATOR
+        ElseIf currentChar = ":" Then
+            takeIt()
+            Return Token.COLON
         ElseIf currentChar = "{" Then
             takeIt()
             Return Token.LEFT_BRACE
         ElseIf currentChar = "}" Then
             takeIt()
             Return Token.RIGHT_BRACE
+        ElseIf currentChar = "(" Then
+            takeIt()
+            Return Token.LEFT_PARENTHESES
+        ElseIf currentChar = ")" Then
+            takeIt()
+            Return Token.RIGHT_PARENTHESES
         Else
             ' Handle unknown characters
             takeIt()

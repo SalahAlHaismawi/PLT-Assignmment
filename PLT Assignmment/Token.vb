@@ -15,9 +15,12 @@
     Public Const OP As Integer = 13
     Public Const LOG As Integer = 14
     Public Const KEYWORD As Integer = 15
+    Public Const LEFT_PARENTHESES As Integer = 16
+    Public Const RIGHT_PARENTHESES As Integer = 17
+    Public Const COLON As Integer = 18
 
 
-    Public Const UNKNOWN As Integer = 16
+    Public Const UNKNOWN As Integer = 19
 
 
 
