@@ -74,6 +74,8 @@ Public Class Scanner
                     Return Token.END_STATEMENT
                 Case "LOG"
                     Return Token.LOG  ' Handling for the 'log' keyword
+                Case "INT" ' Add support for the "int" keyword
+                    Return Token.KEYWORD
                 Case Else
                     Return Token.IDENTIFIER
             End Select

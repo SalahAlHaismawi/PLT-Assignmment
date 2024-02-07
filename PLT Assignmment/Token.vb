@@ -14,8 +14,10 @@
     Public Const SEPARATOR As Integer = 12
     Public Const OP As Integer = 13
     Public Const LOG As Integer = 14
+    Public Const KEYWORD As Integer = 15
 
-    Public Const UNKNOWN As Integer = 15
+
+    Public Const UNKNOWN As Integer = 16
 
 
 

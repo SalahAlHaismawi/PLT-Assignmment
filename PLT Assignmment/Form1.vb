@@ -119,6 +119,8 @@ Public Class Form1
                 Return "OP"
             Case Token.LOG
                 Return "LOG"
+            Case Token.KEYWORD
+                Return "KEYWORD"
             Case Token.UNKNOWN
                 Return "UNKNOWN"
             Case Else
