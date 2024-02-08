@@ -80,6 +80,8 @@ Public Class Scanner
                     Return Token.IF_KEYWORD
                 Case "ELSE" ' Add support for the "if" keyword
                     Return Token.ELSE_KEYWORD
+                Case "WHILE" ' Corrected the case here
+                    Return Token.WHILE_KEYWORD
 
                 Case Else
                     Return Token.IDENTIFIER

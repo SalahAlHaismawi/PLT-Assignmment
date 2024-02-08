@@ -18,9 +18,11 @@
     Public Const LEFT_PARENTHESES As Integer = 16
     Public Const RIGHT_PARENTHESES As Integer = 17
     Public Const COLON As Integer = 18
+    Public Const WHILE_KEYWORD As Integer = 19
 
 
-    Public Const UNKNOWN As Integer = 19
+
+    Public Const UNKNOWN As Integer = 20
 
 
 

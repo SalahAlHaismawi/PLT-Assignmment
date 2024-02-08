@@ -75,7 +75,7 @@ Public Class Form1
     End Sub
 
     Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
-
+        Application.Exit()
     End Sub
 
     Private Sub Label2_Click(sender As Object, e As EventArgs) Handles Label2.Click
@@ -83,7 +83,7 @@ Public Class Form1
     End Sub
     Private Function IsValidToken(tokenType As Integer) As Boolean
         ' Define a list of valid token types
-        Dim validTypes() As Integer = {Token.IDENTIFIER, Token.LEFT_BRACE, Token.RIGHT_BRACE, Token.SEMICOLON, Token.START_STATEMENT, Token.END_STATEMENT, Token.NUMBER, Token.IF_KEYWORD, Token.ELSE_KEYWORD, Token.OP, Token.SEPARATOR, Token.LOG, Token.KEYWORD, Token.LEFT_PARENTHESES, Token.RIGHT_PARENTHESES}
+        Dim validTypes() As Integer = {Token.IDENTIFIER, Token.WHILE_KEYWORD, Token.LEFT_BRACE, Token.RIGHT_BRACE, Token.SEMICOLON, Token.START_STATEMENT, Token.END_STATEMENT, Token.NUMBER, Token.IF_KEYWORD, Token.ELSE_KEYWORD, Token.OP, Token.SEPARATOR, Token.LOG, Token.KEYWORD, Token.LEFT_PARENTHESES, Token.RIGHT_PARENTHESES}
 
         ' Check if the token type is in the list of valid types
         Return validTypes.Contains(tokenType)
@@ -128,6 +128,8 @@ Public Class Form1
                 Return "LEFT_PARENTHESES"
             Case Token.RIGHT_PARENTHESES
                 Return "RIGHT_PARENTHESES"
+            Case Token.WHILE_KEYWORD
+                Return "LOOP STATEMENT"
             Case Else
                 Return "INVALID_TYPE"
         End Select
@@ -136,5 +138,44 @@ Public Class Form1
 
     Private Sub Label3_Click(sender As Object, e As EventArgs) Handles Label3.Click
 
+    End Sub
+
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+        Dim inputText As String = TextBox1.Text
+
+        ' Clear any previous items in the list boxes
+        ListBox1.Items.Clear()
+        ListBox2.Items.Clear()
+
+        ' Perform token scanning
+        Dim scanner As New Scanner(inputText)
+        Do
+            Dim token As Token = scanner.scan()
+            If token.Type = Token.EOF Then
+                Exit Do
+            End If
+
+            Dim tokenTypeName As String = GetTokenTypeName(token.Type)
+
+            If IsValidToken(token.Type) Then
+                ListBox1.Items.Add($"Valid Token: Type={tokenTypeName}, Spelling={token.Value}")
+            Else
+                ListBox1.Items.Add($"Invalid Token: Type={tokenTypeName}, Spelling={token.Value}")
+            End If
+        Loop
+
+        ' Perform syntax parsing
+        Dim syntaxLogic As New SyntaxLogic(inputText)
+        syntaxLogic.parse_program()
+
+        ' Retrieve and display the parsing results
+        Dim results As List(Of String) = syntaxLogic.GetParsingResults()
+        For Each result As String In results
+            ListBox2.Items.Add(result)
+        Next
+
+        If results.Count = 0 Then
+            ListBox2.Items.Add("No parsing results to display.")
+        End If
     End Sub
 End Class
