@@ -120,35 +120,58 @@ Public Class SyntaxLogic
 
             Select Case currentToken.Type
                 Case Token.IDENTIFIER
+                    ' Try to parse an expression
                     parse_expression()
-
+                    ' If expression parsing fails, report an error
+                    If hasSyntaxError Then
+                        Exit Sub
+                    End If
                     hasParsedStatement = True
 
                 Case Token.KEYWORD
+                    ' Try to parse a declaration
                     parse_declaration()
+                    ' If declaration parsing fails, report an error
+                    If hasSyntaxError Then
+                        Exit Sub
+                    End If
                     hasParsedStatement = True
 
                 Case Token.IF_KEYWORD
+                    ' Try to parse an if statement
                     parse_if_statement()
-
+                    ' If if statement parsing fails, report an error
+                    If hasSyntaxError Then
+                        Exit Sub
+                    End If
                     hasParsedStatement = True
 
                 Case Token.LOG
+                    ' Try to parse a log statement
                     parse_log_statement()
+                    ' If log statement parsing fails, report an error
+                    If hasSyntaxError Then
+                        Exit Sub
+                    End If
                     hasParsedStatement = True
+
                 Case Token.WHILE_KEYWORD
+                    ' Try to parse a while statement
                     parse_while_statement()
+                    ' If while statement parsing fails, report an error
+                    If hasSyntaxError Then
+                        Exit Sub
+                    End If
                     hasParsedStatement = True
-
-
-
             End Select
 
+            ' If no statement has been parsed during this iteration, exit the loop
             If Not hasParsedStatement Then
                 Exit While
             End If
         End While
     End Sub
+
     Private Sub parse_log_statement()
 
         If currentToken.Type = Token.LOG Then
@@ -294,34 +317,31 @@ Public Class SyntaxLogic
     Private Sub parse_if_statement()
         consume(Token.IF_KEYWORD)
 
-
         If currentToken.Type = Token.LEFT_PARENTHESES Then
             consume(Token.LEFT_PARENTHESES)
-
-
             parse_expression()
-
-
             If currentToken.Type = Token.RIGHT_PARENTHESES Then
                 consume(Token.RIGHT_PARENTHESES)
             Else
-
                 AddError("Expected ')' after condition expression")
-                Exit Sub ' Exit the function if an error occurs
+                Exit Sub
             End If
         Else
-
             AddError("Expected '(' after 'if' keyword")
             Exit Sub
         End If
 
-
         If currentToken.Type = Token.LEFT_BRACE Then
             consume(Token.LEFT_BRACE)
 
+            Dim errorOccurred As Boolean = False ' Flag to track if an error occurred inside the if block
 
-            While currentToken.Type <> Token.RIGHT_BRACE And currentToken.Type <> Token.EOF
-                parse_statement()
+            While currentToken.Type <> Token.RIGHT_BRACE AndAlso currentToken.Type <> Token.EOF AndAlso Not errorOccurred
+                parse_statement() ' Parse each statement inside the if block
+                ' If an error occurred while parsing the statement, set the flag and exit the loop
+                If hasSyntaxError Then
+                    errorOccurred = True
+                End If
             End While
 
             ' Check for closing brace '}'
@@ -335,33 +355,12 @@ Public Class SyntaxLogic
             AddError("Expected '{' after if condition")
             Exit Sub
         End If
+
         If currentToken.Type = Token.ELSE_KEYWORD Then
-            consume(Token.ELSE_KEYWORD)
-
-
-            If currentToken.Type = Token.LEFT_BRACE Then
-                consume(Token.LEFT_BRACE)
-
-                ' Parse statements inside the else block
-                While currentToken.Type <> Token.RIGHT_BRACE And currentToken.Type <> Token.EOF
-                    parse_statement() ' Parse each statement inside the block
-                End While
-
-                ' Check for closing brace '}'
-                If currentToken.Type = Token.RIGHT_BRACE Then
-                    consume(Token.RIGHT_BRACE)
-                Else
-                    AddError("Expected '}' at the end of else block")
-                    Exit Sub
-                End If
-            Else
-                AddError("Expected '{' after else keyword")
-                Exit Sub
-            End If
+            ' Parse else block
         End If
-        AddParsingResult("If statement with block parsed successfully")
-
     End Sub
+
 
 
     Private Sub parse_while_statement()
